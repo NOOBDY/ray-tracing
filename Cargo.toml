@@ -9,3 +9,4 @@ edition = "2021"
 anyhow = "1.0.81"
 cgmath = { version = "0.18.0", features = ["swizzle"] }
 image = "0.25.0"
+rand = "0.8.5"

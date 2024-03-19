@@ -2,6 +2,7 @@ use cgmath::{dot, Vector3};
 
 use crate::{
     hittable::{HitRecord, Hittable},
+    interval::Interval,
     ray::Ray,
 };
 
@@ -11,7 +12,7 @@ pub struct Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, r: &Ray, ray_tmin: f64, ray_tmax: f64) -> Option<HitRecord> {
+    fn hit(&self, r: &Ray, ray_t: Interval) -> Option<HitRecord> {
         let oc = r.origin - self.center;
         let a = dot(r.direction, r.direction);
         let half_b = dot(oc, r.direction);
@@ -25,10 +26,10 @@ impl Hittable for Sphere {
 
         let sqrtd = discriminant.sqrt();
 
-        let root = (-half_b - sqrtd) / a;
-        if root <= ray_tmin || ray_tmax <= root {
-            let root = (-half_b + sqrtd) / a;
-            if root <= ray_tmin || ray_tmax <= root {
+        let mut root = (-half_b - sqrtd) / a;
+        if !ray_t.contains(root) {
+            root = (-half_b + sqrtd) / a;
+            if !ray_t.contains(root) {
                 return None;
             }
         }

@@ -1,6 +1,6 @@
 use cgmath::{dot, vec3, Vector3};
 
-use crate::ray::Ray;
+use crate::{interval::Interval, ray::Ray};
 
 #[derive(Clone)]
 pub struct HitRecord {
@@ -33,5 +33,5 @@ impl HitRecord {
 }
 
 pub trait Hittable {
-    fn hit(&self, r: &Ray, ray_tmin: f64, ray_tmax: f64) -> Option<HitRecord>;
+    fn hit(&self, r: &Ray, ray_t: Interval) -> Option<HitRecord>;
 }
