@@ -6,7 +6,7 @@ mod sphere;
 use std::{f64::INFINITY, rc::Rc};
 
 use cgmath::{prelude::*, vec3, Vector3};
-use hittable::{HitRecord, Hittable};
+use hittable::Hittable;
 use image::{ImageBuffer, Rgb};
 use ray::Ray;
 
@@ -14,7 +14,7 @@ use crate::{hittable_list::HittableList, sphere::Sphere};
 
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
 
-const IMAGE_WIDTH: u32 = 720;
+const IMAGE_WIDTH: u32 = 1080;
 const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as u32;
 
 const VIEWPORT_HEIGHT: f64 = 2.0;
@@ -23,18 +23,15 @@ const VIEWPORT_WIDTH: f64 = VIEWPORT_HEIGHT * (IMAGE_WIDTH as f64) / (IMAGE_HEIG
 type Color = Vector3<f64>;
 
 fn ray_color(r: Ray, world: Rc<dyn Hittable>) -> Color {
-    let mut rec = HitRecord {
-        ..Default::default()
-    };
+    match world.hit(&r, 0.0, INFINITY) {
+        Some(rec) => 0.5 * (rec.normal + vec3(1.0, 1.0, 1.0)),
+        None => {
+            let unit_direction = r.direction.normalize();
+            let a = 0.5 * (unit_direction.y + 1.0);
 
-    if world.hit(&r, 0.0, INFINITY, &mut rec) {
-        return 0.5 * (rec.normal + vec3(1.0, 1.0, 1.0));
+            (1.0 - a) * vec3(1.0, 1.0, 1.0) + a * vec3(0.5, 0.7, 1.0)
+        }
     }
-
-    let unit_direction = r.direction.normalize();
-    let a = 0.5 * (unit_direction.y + 1.0);
-
-    (1.0 - a) * vec3(1.0, 1.0, 1.0) + a * vec3(0.5, 0.7, 1.0)
 }
 
 fn convert_color(color: Color) -> [u8; 3] {
