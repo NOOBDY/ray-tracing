@@ -14,6 +14,7 @@ impl Default for Interval {
     }
 }
 
+#[allow(dead_code)]
 impl Interval {
     pub fn new(min: f64, max: f64) -> Interval {
         Interval { min, max }

@@ -718,6 +718,7 @@ dependencies = [
  "anyhow",
  "cgmath",
  "image",
+ "itertools",
  "rand",
 ]
 

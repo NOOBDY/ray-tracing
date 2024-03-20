@@ -3,6 +3,7 @@ mod color;
 mod hittable;
 mod hittable_list;
 mod interval;
+mod random;
 mod ray;
 mod sphere;
 
@@ -14,8 +15,9 @@ use cgmath::vec3;
 use crate::{hittable_list::HittableList, sphere::Sphere};
 
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
-const IMAGE_WIDTH: u32 = 1080;
-const SAMPLES_PER_PIXEL: u32 = 10;
+const IMAGE_WIDTH: u32 = 400;
+const SAMPLES_PER_PIXEL: u32 = 100;
+const MAX_DEPTH: u32 = 50;
 
 fn main() -> anyhow::Result<()> {
     let world = Rc::new(HittableList::new(vec![
@@ -29,7 +31,7 @@ fn main() -> anyhow::Result<()> {
         }),
     ]));
 
-    let cam = Camera::new(ASPECT_RATIO, IMAGE_WIDTH, SAMPLES_PER_PIXEL);
+    let cam = Camera::new(ASPECT_RATIO, IMAGE_WIDTH, SAMPLES_PER_PIXEL, MAX_DEPTH);
 
     cam.render(world);
 
