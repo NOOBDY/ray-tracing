@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use cgmath::{prelude::*, vec3, Vector3};
 use image::{ImageBuffer, Rgb};
@@ -64,24 +64,26 @@ impl Camera {
         }
     }
 
-    pub fn render(&self, world: Rc<dyn Hittable>) {
+    pub fn render(&self, world: Arc<dyn Hittable>) {
         let output = (0..self.image_height)
-            .cartesian_product(0..self.image_width)
-            .flat_map(|(j, i)| {
-                print!(
-                    "\r{} / {}",
-                    j * self.image_width + i + 1,
-                    self.image_width * self.image_height
-                );
+            .flat_map(|j| {
+                let world = Arc::clone(&world);
+                (0..self.image_width).flat_map(move |i| {
+                    print!(
+                        "\r{} / {}",
+                        j * self.image_width + i + 1,
+                        self.image_width * self.image_height
+                    );
 
-                let pixel_color = (0..self.samples_per_pixel)
-                    .map(|_| {
-                        let world = Rc::clone(&world);
-                        let r = self.get_ray(i, j);
-                        Camera::ray_color(r, self.max_depth, world)
-                    })
-                    .sum();
-                convert_color(pixel_color, self.samples_per_pixel)
+                    let pixel_color = (0..self.samples_per_pixel)
+                        .map(|_| {
+                            let world = Arc::clone(&world);
+                            let r = self.get_ray(i, j);
+                            Camera::ray_color(r, self.max_depth, world)
+                        })
+                        .sum();
+                    convert_color(pixel_color, self.samples_per_pixel)
+                })
             })
             .collect::<Vec<_>>();
 
@@ -92,7 +94,7 @@ impl Camera {
         image.save("image.png").unwrap();
     }
 
-    fn ray_color(r: Ray, depth: u32, world: Rc<dyn Hittable>) -> Color {
+    fn ray_color(r: Ray, depth: u32, world: Arc<dyn Hittable>) -> Color {
         if depth == 0 {
             return vec3(0.0, 0.0, 0.0);
         }

@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::{
     hittable::{HitRecord, Hittable},
@@ -7,11 +7,11 @@ use crate::{
 };
 
 pub struct HittableList {
-    pub objects: Vec<Rc<dyn Hittable>>,
+    pub objects: Vec<Arc<dyn Hittable>>,
 }
 
 impl HittableList {
-    pub fn new(list: Vec<Rc<dyn Hittable>>) -> HittableList {
+    pub fn new(list: Vec<Arc<dyn Hittable>>) -> HittableList {
         HittableList { objects: list }
     }
 }

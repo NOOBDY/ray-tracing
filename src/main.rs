@@ -7,7 +7,7 @@ mod random;
 mod ray;
 mod sphere;
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 use camera::Camera;
 use cgmath::vec3;
@@ -20,12 +20,12 @@ const SAMPLES_PER_PIXEL: u32 = 100;
 const MAX_DEPTH: u32 = 50;
 
 fn main() -> anyhow::Result<()> {
-    let world = Rc::new(HittableList::new(vec![
-        Rc::new(Sphere {
+    let world = Arc::new(HittableList::new(vec![
+        Arc::new(Sphere {
             center: vec3(0.0, 0.0, -1.0),
             radius: 0.5,
         }),
-        Rc::new(Sphere {
+        Arc::new(Sphere {
             center: vec3(0.0, -100.5, -1.0),
             radius: 100.0,
         }),
