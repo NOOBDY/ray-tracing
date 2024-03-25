@@ -1,4 +1,7 @@
-use std::sync::Arc;
+use std::{
+    rc::Rc,
+    sync::{Arc, Mutex},
+};
 
 use cgmath::{prelude::*, vec3, Vector3};
 use image::{ImageBuffer, Rgb};
@@ -64,10 +67,10 @@ impl Camera {
         }
     }
 
-    pub fn render(&self, world: Arc<dyn Hittable>) {
+    pub fn render(&self, world: Rc<dyn Hittable>) {
         let output = (0..self.image_height)
             .flat_map(|j| {
-                let world = Arc::clone(&world);
+                let world = Rc::clone(&world);
                 (0..self.image_width).flat_map(move |i| {
                     print!(
                         "\r{} / {}",
@@ -77,7 +80,7 @@ impl Camera {
 
                     let pixel_color = (0..self.samples_per_pixel)
                         .map(|_| {
-                            let world = Arc::clone(&world);
+                            let world = Rc::clone(&world);
                             let r = self.get_ray(i, j);
                             Camera::ray_color(r, self.max_depth, world)
                         })
@@ -94,7 +97,7 @@ impl Camera {
         image.save("image.png").unwrap();
     }
 
-    fn ray_color(r: Ray, depth: u32, world: Arc<dyn Hittable>) -> Color {
+    fn ray_color(r: Ray, depth: u32, world: Rc<dyn Hittable>) -> Color {
         if depth == 0 {
             return vec3(0.0, 0.0, 0.0);
         }
@@ -103,6 +106,7 @@ impl Camera {
             min: 0.0,
             max: f64::INFINITY,
         };
+        // let _world = world.lock().unwrap();
         match world.hit(&r, interval) {
             Some(rec) => {
                 // 0.5 * (rec.normal + vec3(1.0, 1.0, 1.0))
