@@ -34,7 +34,7 @@ impl Camera {
     ) -> Camera {
         let image_height = (image_width as f64 / aspect_ratio) as u32;
 
-        let center = vec3(0.0, 0.0, 0.0);
+        let center = vec3(0.0, 0.0, 0.5);
 
         let focal_length = 1.0;
         let viewport_height: f64 = 2.0;
@@ -104,7 +104,7 @@ impl Camera {
         match world.hit(&r, interval) {
             Some(rec) => {
                 // 0.5 * (rec.normal + vec3(1.0, 1.0, 1.0))
-                let direction = random_on_hemisphere(rec.normal);
+                let direction = rec.normal + random_on_hemisphere(rec.normal);
                 let r = Ray {
                     origin: rec.p,
                     direction,
