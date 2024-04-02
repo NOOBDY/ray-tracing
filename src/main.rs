@@ -22,7 +22,15 @@ const MAX_DEPTH: u32 = 50;
 fn main() -> anyhow::Result<()> {
     let world = Rc::new(HittableList::new(vec![
         Rc::new(Sphere {
+            center: vec3(-1.2, 0.0, -1.0),
+            radius: 0.5,
+        }),
+        Rc::new(Sphere {
             center: vec3(0.0, 0.0, -1.0),
+            radius: 0.5,
+        }),
+        Rc::new(Sphere {
+            center: vec3(1.2, 0.0, -1.0),
             radius: 0.5,
         }),
         Rc::new(Sphere {

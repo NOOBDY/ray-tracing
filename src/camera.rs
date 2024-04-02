@@ -8,7 +8,7 @@ use crate::{
     color::{convert_color, Color},
     hittable::Hittable,
     interval::Interval,
-    random::random_on_hemisphere,
+    random::{random_f64, random_on_hemisphere},
     ray::Ray,
 };
 
@@ -98,7 +98,7 @@ impl Camera {
         }
 
         let interval = Interval {
-            min: 0.0,
+            min: 0.001,
             max: f64::INFINITY,
         };
         match world.hit(&r, interval) {
@@ -136,8 +136,8 @@ impl Camera {
     }
 
     fn pixel_sample_square(&self) -> Vector3<f64> {
-        let px = -0.5 * rand::random::<f64>();
-        let py = -0.5 * rand::random::<f64>();
+        let px = -0.5 * random_f64();
+        let py = -0.5 * random_f64();
         px * self.pixel_delta_u + py * self.pixel_delta_v
     }
 }

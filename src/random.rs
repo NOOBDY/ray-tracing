@@ -1,18 +1,19 @@
 use cgmath::{dot, vec3, InnerSpace, Vector3};
-use rand::random;
+use rand::prelude::*;
 
-pub fn random_f64_with_min_max(min: i32, max: i32) -> f64 {
-    let min = f64::from(min);
-    let max = f64::from(max);
-    min + (max - min) * random::<f64>()
+pub fn random_f64() -> f64 {
+    random::<f64>()
 }
 
-#[allow(dead_code)]
+pub fn random_f64_with_min_max(min: f64, max: f64) -> f64 {
+    min + (max - min) * random_f64()
+}
+
 pub fn random_vec3() -> Vector3<f64> {
-    vec3(random::<f64>(), random::<f64>(), random::<f64>())
+    vec3(random_f64(), random_f64(), random_f64())
 }
 
-pub fn random_vec3_with_min_max(min: i32, max: i32) -> Vector3<f64> {
+pub fn random_vec3_with_min_max(min: f64, max: f64) -> Vector3<f64> {
     vec3(
         random_f64_with_min_max(min, max),
         random_f64_with_min_max(min, max),
@@ -22,7 +23,7 @@ pub fn random_vec3_with_min_max(min: i32, max: i32) -> Vector3<f64> {
 
 pub fn random_in_unit_sphere() -> Vector3<f64> {
     loop {
-        let p = random_vec3_with_min_max(-1, 1);
+        let p = random_vec3_with_min_max(-1.0, 1.0);
 
         if dot(p, p) < 1.0 {
             return p;
