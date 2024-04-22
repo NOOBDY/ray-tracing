@@ -7,7 +7,6 @@ use crate::{interval::Interval, material::Material, ray::Ray};
 pub mod hittable_list;
 pub mod sphere;
 
-#[derive(Clone)]
 pub struct HitRecord {
     pub p: Vector3<f64>,
     pub normal: Vector3<f64>,

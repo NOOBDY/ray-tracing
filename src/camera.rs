@@ -8,21 +8,27 @@ use crate::{
     color::{convert_color, Color},
     hittable::Hittable,
     interval::Interval,
-    random::random_f64,
+    random::{random_f64, random_in_unit_disk},
     ray::Ray,
+    ASPECT_RATIO, IMAGE_WIDTH, MAX_DEPTH, SAMPLES_PER_PIXEL,
 };
 
 pub struct Camera {
-    pub aspect_ratio: f64,
-    pub image_width: u32,
-    pub samples_per_pixel: u32,
-    pub max_depth: u32,
+    aspect_ratio: f64,
+    image_width: u32,
+    samples_per_pixel: u32,
+    max_depth: u32,
 
     image_height: u32,
     center: Vector3<f64>,
     pixel00_loc: Vector3<f64>,
     pixel_delta_u: Vector3<f64>,
     pixel_delta_v: Vector3<f64>,
+
+    defocus_angle: f64,
+    focus_dist: f64,
+    defocus_disk_u: Vector3<f64>,
+    defocus_disk_v: Vector3<f64>,
 }
 
 impl Camera {
@@ -31,21 +37,23 @@ impl Camera {
         look_at: Vector3<f64>,
         v_up: Vector3<f64>,
         v_fov: f64,
-        aspect_ratio: f64,
-        image_width: u32,
-        samples_per_pixel: u32,
-        max_depth: u32,
+        defocus_angle: f64,
+        focus_dist: f64,
     ) -> Camera {
+        let aspect_ratio = ASPECT_RATIO;
+        let image_width = IMAGE_WIDTH;
+        let samples_per_pixel = SAMPLES_PER_PIXEL;
+        let max_depth = MAX_DEPTH;
+
         let image_height = (image_width as f64 / aspect_ratio) as u32;
         let image_height = max(image_height, 1);
 
         let center = look_from;
 
-        let focal_length = (look_from - look_at).distance(vec3(0.0, 0.0, 0.0));
         let theta = v_fov.to_radians();
         let h = (theta / 2.0).tan();
 
-        let viewport_height = 2.0 * h * focal_length;
+        let viewport_height = 2.0 * h * focus_dist;
         let viewport_width = aspect_ratio * viewport_height;
 
         let w = (look_from - look_at).normalize();
@@ -58,9 +66,13 @@ impl Camera {
         let pixel_delta_u = viewport_u / image_width.into();
         let pixel_delta_v = viewport_v / image_height.into();
 
-        let viewport_upper_left = center - (focal_length * w) - viewport_u / 2.0 - viewport_v / 2.0;
+        let viewport_upper_left = center - (focus_dist * w) - viewport_u / 2.0 - viewport_v / 2.0;
 
         let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+
+        let defocus_radius = focus_dist * (defocus_angle / 2.0).to_radians().tan();
+        let defocus_disk_u = u * defocus_radius;
+        let defocus_disk_v = v * defocus_radius;
 
         Camera {
             aspect_ratio,
@@ -72,6 +84,10 @@ impl Camera {
             pixel00_loc,
             pixel_delta_u,
             pixel_delta_v,
+            defocus_angle,
+            focus_dist,
+            defocus_disk_u,
+            defocus_disk_v,
         }
     }
 
@@ -135,7 +151,11 @@ impl Camera {
             + (f64::from(j) * self.pixel_delta_v);
         let pixel_sample = pixel_center + self.pixel_sample_square();
 
-        let ray_origin = self.center;
+        let ray_origin = if self.defocus_angle <= 0.0 {
+            self.center
+        } else {
+            self.defocus_disk_sample()
+        };
         let ray_direction = pixel_sample - ray_origin;
 
         Ray {
@@ -148,5 +168,10 @@ impl Camera {
         let px = -0.5 * random_f64();
         let py = -0.5 * random_f64();
         px * self.pixel_delta_u + py * self.pixel_delta_v
+    }
+
+    fn defocus_disk_sample(&self) -> Vector3<f64> {
+        let p = random_in_unit_disk();
+        self.center + (p.x * self.defocus_disk_u) + (p.y * self.defocus_disk_v)
     }
 }

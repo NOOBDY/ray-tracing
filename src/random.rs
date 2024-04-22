@@ -43,3 +43,17 @@ pub fn random_on_hemisphere(normal: Vector3<f64>) -> Vector3<f64> {
         -on_unit_sphere
     }
 }
+
+pub fn random_in_unit_disk() -> Vector3<f64> {
+    loop {
+        let p = vec3(
+            random_f64_with_min_max(-1.0, 1.0),
+            random_f64_with_min_max(-1.0, 1.0),
+            0.0,
+        );
+
+        if dot(p, p) < 1.0 {
+            return p;
+        }
+    }
+}
