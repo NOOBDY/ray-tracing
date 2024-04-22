@@ -1,24 +1,16 @@
-use cgmath::{dot, vec3, Vector3};
+use std::rc::Rc;
 
-use crate::{interval::Interval, ray::Ray};
+use cgmath::{dot, Vector3};
+
+use crate::{interval::Interval, material::Material, ray::Ray};
 
 #[derive(Clone)]
 pub struct HitRecord {
     pub p: Vector3<f64>,
     pub normal: Vector3<f64>,
+    pub mat: Rc<dyn Material>,
     pub t: f64,
     pub front_face: bool,
-}
-
-impl Default for HitRecord {
-    fn default() -> Self {
-        Self {
-            p: vec3(0.0, 0.0, 0.0),
-            normal: vec3(0.0, 0.0, 0.0),
-            t: Default::default(),
-            front_face: Default::default(),
-        }
-    }
 }
 
 impl HitRecord {

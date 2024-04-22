@@ -1,14 +1,18 @@
-use cgmath::{dot, Vector3};
+use std::rc::Rc;
+
+use cgmath::{dot, vec3, Vector3};
 
 use crate::{
     hittable::{HitRecord, Hittable},
     interval::Interval,
+    material::Material,
     ray::Ray,
 };
 
 pub struct Sphere {
     pub center: Vector3<f64>,
     pub radius: f64,
+    pub material: Rc<dyn Material>,
 }
 
 impl Hittable for Sphere {
@@ -37,7 +41,9 @@ impl Hittable for Sphere {
         let mut rec = HitRecord {
             t: root,
             p: r.at(root),
-            ..Default::default()
+            mat: Rc::clone(&self.material),
+            front_face: Default::default(),
+            normal: vec3(0.0, 0.0, 0.0),
         };
 
         let outward_normal = (rec.p - self.center) / self.radius;

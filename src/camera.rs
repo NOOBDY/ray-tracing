@@ -103,13 +103,11 @@ impl Camera {
         };
         match world.hit(&r, interval) {
             Some(rec) => {
-                // 0.5 * (rec.normal + vec3(1.0, 1.0, 1.0))
-                let direction = rec.normal + random_on_hemisphere(rec.normal);
-                let r = Ray {
-                    origin: rec.p,
-                    direction,
-                };
-                0.5 * Camera::ray_color(r, depth - 1, world)
+                if let Some((attenuation, scattered)) = rec.mat.scatter(r, &rec) {
+                    attenuation.mul_element_wise(Camera::ray_color(scattered, depth - 1, world))
+                } else {
+                    vec3(0.0, 0.0, 0.0)
+                }
             }
             None => {
                 let unit_direction = r.direction.normalize();
