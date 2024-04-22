@@ -1,23 +1,17 @@
 mod camera;
 mod color;
 mod hittable;
-mod hittable_list;
 mod interval;
-mod lambertian;
 mod material;
-mod metal;
 mod random;
 mod ray;
-mod sphere;
 
 use std::rc::Rc;
 
 use camera::Camera;
 use cgmath::vec3;
-use lambertian::Lambertian;
-use metal::Metal;
-
-use crate::{hittable_list::HittableList, sphere::Sphere};
+use hittable::{hittable_list::HittableList, sphere::Sphere};
+use material::{lambertian::Lambertian, metal::Metal};
 
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
 const IMAGE_WIDTH: u32 = 720;
