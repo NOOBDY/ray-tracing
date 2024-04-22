@@ -1,4 +1,4 @@
-use cgmath::{dot, vec3, InnerSpace, Vector3};
+use cgmath::{dot, vec3, InnerSpace};
 
 use crate::{
     math::{reflect, refract},

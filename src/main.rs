@@ -23,16 +23,22 @@ fn main() -> anyhow::Result<()> {
     let mat_ground = Rc::new(Lambertian::new(vec3(0.8, 0.8, 0.0)));
     let mat_center = Rc::new(Lambertian::new(vec3(0.1, 0.2, 0.5)));
     let mat_left = Rc::new(Dielectric::new(1.5));
+    let mat_bubble = Rc::new(Dielectric::new(1.0 / 1.5));
     let mat_right = Rc::new(Metal::new(vec3(0.8, 0.6, 0.2), 0.0));
 
     let world = Rc::new(HittableList::new(vec![
         Rc::new(Sphere {
             center: vec3(-1.2, 0.0, -1.0),
-            radius: -0.4,
+            radius: 0.5,
             material: mat_left,
         }),
         Rc::new(Sphere {
-            center: vec3(0.0, 0.0, -1.0),
+            center: vec3(-1.2, 0.0, -1.0),
+            radius: 0.4,
+            material: mat_bubble,
+        }),
+        Rc::new(Sphere {
+            center: vec3(0.0, 0.0, -1.2),
             radius: 0.5,
             material: mat_center,
         }),
@@ -49,11 +55,14 @@ fn main() -> anyhow::Result<()> {
     ]));
 
     let cam = Camera::new(
+        vec3(-2.0, 0.5, 1.0),
+        vec3(0.0, 0.0, -1.0),
+        vec3(0.0, 1.0, 0.0),
+        60.0,
         ASPECT_RATIO,
         IMAGE_WIDTH,
         SAMPLES_PER_PIXEL,
         MAX_DEPTH,
-        60.0,
     );
 
     cam.render(world);

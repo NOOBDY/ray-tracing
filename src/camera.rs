@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::{cmp::max, rc::Rc};
 
 use cgmath::{prelude::*, vec3, Vector3};
 use image::{ImageBuffer, Rgb};
@@ -27,31 +27,38 @@ pub struct Camera {
 
 impl Camera {
     pub fn new(
+        look_from: Vector3<f64>,
+        look_at: Vector3<f64>,
+        v_up: Vector3<f64>,
+        v_fov: f64,
         aspect_ratio: f64,
         image_width: u32,
         samples_per_pixel: u32,
         max_depth: u32,
-        vfov: f64,
     ) -> Camera {
-        let theta = vfov.to_radians();
-        let h = (theta / 2.0).tan();
         let image_height = (image_width as f64 / aspect_ratio) as u32;
+        let image_height = max(image_height, 1);
 
-        let center = vec3(0.0, 0.0, 0.5);
+        let center = look_from;
 
-        let viewport_height = 2.0 * h;
+        let focal_length = (look_from - look_at).distance(vec3(0.0, 0.0, 0.0));
+        let theta = v_fov.to_radians();
+        let h = (theta / 2.0).tan();
+
+        let viewport_height = 2.0 * h * focal_length;
         let viewport_width = aspect_ratio * viewport_height;
 
-        let focal_length = 1.0;
+        let w = (look_from - look_at).normalize();
+        let u = v_up.cross(w).normalize();
+        let v = w.cross(u);
 
-        let viewport_u = vec3(viewport_width, 0.0, 0.0);
-        let viewport_v = vec3(0.0, -viewport_height, 0.0);
+        let viewport_u = viewport_width * u;
+        let viewport_v = viewport_height * -v;
 
         let pixel_delta_u = viewport_u / image_width.into();
         let pixel_delta_v = viewport_v / image_height.into();
 
-        let viewport_upper_left =
-            center - vec3(0.0, 0.0, focal_length) - viewport_u / 2.0 - viewport_v / 2.0;
+        let viewport_upper_left = center - (focal_length * w) - viewport_u / 2.0 - viewport_v / 2.0;
 
         let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
