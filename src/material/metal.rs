@@ -1,18 +1,31 @@
-use cgmath::{dot, InnerSpace, Vector3};
+use cgmath::{dot, InnerSpace};
 
-use crate::{color::Color, hittable::HitRecord, material::Material, ray::Ray};
+use crate::{
+    color::Color, hittable::HitRecord, material::Material, math::reflect,
+    random::random_in_unit_sphere, ray::Ray,
+};
 
 pub struct Metal {
     pub albedo: Color,
+    pub fuzz: f64,
+}
+
+impl Metal {
+    pub fn new(albedo: Color, fuzz: f64) -> Metal {
+        Metal {
+            albedo,
+            fuzz: f64::min(fuzz, 1.0),
+        }
+    }
 }
 
 impl Material for Metal {
     fn scatter(&self, r_in: Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
-        let reflected = reflect(&r_in.direction.normalize(), &rec.normal);
+        let reflected = reflect(r_in.direction.normalize(), rec.normal);
 
         let scattered = Ray {
             origin: rec.p,
-            direction: reflected,
+            direction: reflected + self.fuzz * random_in_unit_sphere(),
         };
 
         let attenuation = self.albedo;
@@ -23,8 +36,4 @@ impl Material for Metal {
             None
         }
     }
-}
-
-fn reflect(v: &Vector3<f64>, n: &Vector3<f64>) -> Vector3<f64> {
-    v - 2.0 * dot(*v, *n) * n
 }

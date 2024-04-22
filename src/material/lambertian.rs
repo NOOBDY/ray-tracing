@@ -1,11 +1,16 @@
-use cgmath::{AbsDiffEq, Vector3};
-
 use crate::{
-    color::Color, hittable::HitRecord, material::Material, random::random_unit_vector, ray::Ray,
+    color::Color, hittable::HitRecord, material::Material, math::near_zero,
+    random::random_unit_vector, ray::Ray,
 };
 
 pub struct Lambertian {
     pub albedo: Color,
+}
+
+impl Lambertian {
+    pub fn new(albedo: Color) -> Lambertian {
+        Lambertian { albedo }
+    }
 }
 
 impl Material for Lambertian {
@@ -25,9 +30,4 @@ impl Material for Lambertian {
 
         Some((attenuation, scattered))
     }
-}
-
-fn near_zero(v: &Vector3<f64>) -> bool {
-    let s = 1e-8;
-    v.x.abs_diff_eq(&0.0, s) && v.y.abs_diff_eq(&0.0, s) && v.z.abs_diff_eq(&0.0, s)
 }

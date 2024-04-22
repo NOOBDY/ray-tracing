@@ -8,7 +8,7 @@ use crate::{
     color::{convert_color, Color},
     hittable::Hittable,
     interval::Interval,
-    random::{random_f64, random_on_hemisphere},
+    random::random_f64,
     ray::Ray,
 };
 
@@ -31,14 +31,18 @@ impl Camera {
         image_width: u32,
         samples_per_pixel: u32,
         max_depth: u32,
+        vfov: f64,
     ) -> Camera {
+        let theta = vfov.to_radians();
+        let h = (theta / 2.0).tan();
         let image_height = (image_width as f64 / aspect_ratio) as u32;
 
         let center = vec3(0.0, 0.0, 0.5);
 
+        let viewport_height = 2.0 * h;
+        let viewport_width = aspect_ratio * viewport_height;
+
         let focal_length = 1.0;
-        let viewport_height: f64 = 2.0;
-        let viewport_width: f64 = viewport_height * (image_width as f64) / (image_height as f64);
 
         let viewport_u = vec3(viewport_width, 0.0, 0.0);
         let viewport_v = vec3(0.0, -viewport_height, 0.0);
